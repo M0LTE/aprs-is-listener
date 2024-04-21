@@ -46,6 +46,7 @@ internal partial class AprsIsListener(ILogger<AprsIsListener> logger) : IHostedS
 
         await reader.ReadLineAsync();
 
+        // https://www.aprs-is.net/javAPRSFilter.aspx
         // poimqstunw
         /*
             p = Position packets
@@ -60,8 +61,8 @@ internal partial class AprsIsListener(ILogger<AprsIsListener> logger) : IHostedS
             w = Weather
          */
 
-        //const string filter = "ps";
-        const string filter = "poimqstunw";
+        const string filter = "ps";
+        //const string filter = "poimqstunw";
         await writer.WriteAsync($"user N0CALL pass -1 vers m0ltetestclient 0.0.1 filter t/{filter}\n");
 
         do
