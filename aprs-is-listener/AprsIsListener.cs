@@ -63,7 +63,8 @@ internal partial class AprsIsListener(ILogger<AprsIsListener> logger) : IHostedS
 
         const string filter = "ps";
         //const string filter = "poimqstunw";
-        await writer.WriteAsync($"user N0CALL pass -1 vers m0ltetestclient 0.0.1 filter t/{filter}\n");
+        const string user = "M0LTE";
+        await writer.WriteAsync($"user {user} pass -1 vers m0ltetestclient 0.0.1 filter t/{filter}\n");
 
         do
         {
@@ -73,6 +74,12 @@ internal partial class AprsIsListener(ILogger<AprsIsListener> logger) : IHostedS
             try
             {
                 line = await reader.ReadLineAsync(combined.Token);
+
+                if (line == "# Login by user not allowed")
+                {
+                    logger.LogWarning($"Login by user {user} not allowed");
+                    Environment.Exit(1);
+                }
             }
             catch (OperationCanceledException)
             {
@@ -162,15 +169,15 @@ internal partial class AprsIsListener(ILogger<AprsIsListener> logger) : IHostedS
             return;
         }
 
-        var sender = senderWithSsid.Split('-')[0];
-
         if (double.IsNaN(alt))
         {
-            logger.LogInformation("{call} {withSsid} {lat} {lon}", sender, senderWithSsid, lat, lon);
+            logger.LogInformation("{call} {lat},{lon} {horizontalAccuracy}x{verticalAccuracy} {speed}km/h {course}'", 
+                senderWithSsid, lat, lon, horizontalAccuracy, verticalAccuracy, speed, course);
         }
         else
         {
-            logger.LogInformation("{call} {withSsid} {lat} {lon} {alt}", sender, senderWithSsid, lat, lon, alt);
+            logger.LogInformation("{call} {lat},{lon} {alt}m {horizontalAccuracy}x{verticalAccuracy} {speed}km/h {course}'",
+                senderWithSsid, lat, lon, alt, horizontalAccuracy, verticalAccuracy, speed, course);
         }
     }
 
